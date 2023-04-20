@@ -46,7 +46,6 @@ def get_host_events(period=None, events=None, host=None):
     
     while True:
         events_in_page = event_collector.ReadNextEvents(page_size)
-        print(len(events_in_page))
         if not events_in_page:
             break
         
@@ -57,12 +56,17 @@ def get_host_events(period=None, events=None, host=None):
         # if desired host was provided
         page_events = []
         for e in events_in_page:
-            if "snapshot" in e.fullFormattedMessage:
-            # if e.host and e.host.host.summary.config.name == host:
+            if e.host and e.host.host.summary.config.name == host:
                 page_events.append(e)
         out_events.extend(page_events)
         
     return out_events
 
 for e in get_host_events(events=EVENTS, period=period, host=host):
-    print("{} \033[32m@\033[0m {:%Y-%m-%d %H:%M:%S} by {}".format(e.fullFormattedMessage, e.createdTime, e.userName))
+    event_string = "{} \033[32m@\033[0m {:%Y-%m-%d %H:%M:%S} by {}".format(e.fullFormattedMessage, e.createdTime, e.userName)
+    try:
+        event_string += "in datastore{}".format(e.vm.vm.datastore)
+    except Exception:
+        print(event_string)
+        continue
+    print(event_string)
