@@ -6,11 +6,12 @@ from dotenv import load_dotenv
 
 load_dotenv()
 
-PERIOD = int(os.getenv("PERIOD"))
-HOST = os.getenv("HOST")
+# HOST = "10.141.42.240"
 VC = os.getenv("VCENTER_ADDR")
 USER = os.getenv("VCENTER_USER")
 PWD = os.getenv("VCENTER_PWD")
+period = None
+host = None
 EVENTS = ["VmMigratedEvent", "VmCreatedEvent", "VmRemovedEvent", "VmBeingClonedEvent", "VmRelocatedEvent"] # example of desired events
 
 def get_host_events(period=None, events=None, host=None):
@@ -45,6 +46,7 @@ def get_host_events(period=None, events=None, host=None):
     
     while True:
         events_in_page = event_collector.ReadNextEvents(page_size)
+        print(len(events_in_page))
         if not events_in_page:
             break
         
@@ -62,6 +64,5 @@ def get_host_events(period=None, events=None, host=None):
         
     return out_events
 
-for e in get_host_events(VC, USER, PWD, period=PERIOD, host=HOST, ):
+for e in get_host_events(events=EVENTS, period=period, host=host):
     print("{} \033[32m@\033[0m {:%Y-%m-%d %H:%M:%S} by {}".format(e.fullFormattedMessage, e.createdTime, e.userName))
-    print(e.vm.name)
